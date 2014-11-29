@@ -8,7 +8,7 @@ var Enemy = function(x, y) {
     this.sprite = 'images/enemy-bug.png';
     this.x = x; //83 * 2;
     this.y = y; //101 * 4;
-    this.direction = 100;
+    this.velocity = 200;
 }
 
 // Update the enemy's position, required method for game
@@ -17,15 +17,24 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    if (this.x >= ctx.canvas.width - 101 || this.x <= 0)
-        this.direction = -this.direction;
+    if (this.x >= ctx.canvas.width || this.x <= -251) {
+        this.velocity = -this.velocity;
+    }
+    this.x += (this.velocity * dt);
 
-    this.x += (this.direction * dt);
 }
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    var img = Resources.get(this.sprite);
+    if (this.velocity < 0) {
+        ctx.save();
+        ctx.translate(ctx.canvas.width/2, ctx.canvas.height/2);
+        ctx.rotate(180 * Math.PI/180);
+        ctx.drawImage(img, -this.x, -this.y + 83);
+        ctx.restore();
+    } else
+        ctx.drawImage(img, this.x, this.y);
 }
 
 // Now write your own player class

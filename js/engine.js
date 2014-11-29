@@ -23,7 +23,8 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime;
+        lastTime,
+        collision = false;
 
     canvas.width = 505;
     canvas.height = 606;
@@ -45,7 +46,11 @@ var Engine = (function(global) {
         /* Call our update/render functions, pass along the time delta to
          * our update function since it may be used for smooth animation.
          */
-        update(dt);
+        update(dt)
+        if (collision) {
+            console.log(collision);
+            return;
+        }
         render();
 
         /* Set our lastTime variable which is used to determine the time delta
@@ -68,7 +73,22 @@ var Engine = (function(global) {
         lastTime = Date.now();
         main();
     }
-
+    function checkCollisions() {
+        allEnemies.forEach(function(enemy) {
+            var deltaX,
+                deltaY;
+            if (enemy.velocity > 0) {
+                deltaX = Math.abs(enemy.x - player.x);
+                deltaY = Math.abs(enemy.y - player.y);
+            } else {
+                deltaX = Math.abs(enemy.x - player.x + 151);
+                deltaY = Math.abs(enemy.y - player.y);
+            }
+        
+            if (deltaX < 50 && deltaY < 50)
+                collision = true;
+        });
+    } 
     /* This function is called by main (our game loop) and itself calls all
      * of the functions which may need to update entity's data. Based on how
      * you implement your collision detection (when two entities occupy the
@@ -80,7 +100,7 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        return checkCollisions();
     }
 
     /* This is called by the update function  and loops through all of the
@@ -94,7 +114,7 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        player.update();
+        //player.update();
     }
 
     /* This function initially draws the "game level", it will then call
